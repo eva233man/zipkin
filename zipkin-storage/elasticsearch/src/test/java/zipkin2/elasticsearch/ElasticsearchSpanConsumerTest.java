@@ -262,7 +262,7 @@ public class ElasticsearchSpanConsumerTest {
       .hosts(this.storage.hostsSupplier().get())
       .searchEnabled(false).build()) {
 
-      es.enqueue(new MockResponse().setBody("{\"version\":{\"number\":\"6.0.0\"}}"));
+      es.enqueue(new MockResponse().setBody("{\"version\":{\"number\":\"5.6.3\"}}"));
       es.enqueue(new MockResponse().setResponseCode(404)); // get span template
       es.enqueue(new MockResponse()); // put span template
       es.enqueue(new MockResponse()); // get dependency template
@@ -278,7 +278,9 @@ public class ElasticsearchSpanConsumerTest {
           + "      \"properties\": {\n"
           + "        \"traceId\": { \"type\": \"keyword\", \"norms\": false },\n"
           + "        \"annotations\": { \"enabled\": false },\n"
-          + "        \"tags\": { \"enabled\": false }\n"
+          + "        \"tags\": { \"dynamic\": true ,\n"
+          + "          \"properties\": { \"args\": { \"type\": \"text\", \"ignore_above\": 1024 }, \"result\": { \"type\": \"text\", \"ignore_above\": 1024 } }\n"
+          + "        }\n"
           + "      }\n"
           + "    }\n"
           + "  }\n");
