@@ -279,7 +279,7 @@ public class ElasticsearchSpanConsumerTest {
           + "        \"traceId\": { \"type\": \"keyword\", \"norms\": false },\n"
           + "        \"annotations\": { \"enabled\": false },\n"
           + "        \"tags\": { \"dynamic\": true ,\n"
-          + "          \"properties\": { \"args\": { \"type\": \"text\", \"ignore_above\": 1024 }, \"result\": { \"type\": \"text\", \"ignore_above\": 1024 } }\n"
+          + "          \"properties\": { \"args\": { \"type\": \"text\"}, \"result\": { \"type\": \"text\"} }\n"
           + "        }\n"
           + "      }\n"
           + "    }\n"
