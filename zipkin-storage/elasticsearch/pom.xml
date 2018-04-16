@@ -53,6 +53,17 @@
       <artifactId>moshi</artifactId>
     </dependency>
 
+    <dependency>
+      <groupId>com.alibaba</groupId>
+      <artifactId>fastjson</artifactId>
+      <version>1.2.41</version>
+    </dependency>
+    <dependency>
+      <groupId>dom4j</groupId>
+      <artifactId>dom4j</artifactId>
+      <version>1.6.1</version>
+    </dependency>
+
     <!-- for TestObjects -->
     <dependency>
       <groupId>io.zipkin.zipkin2</groupId>

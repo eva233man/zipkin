@@ -20,14 +20,17 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import okio.Buffer;
 import okio.ByteString;
 import zipkin2.Annotation;
 import zipkin2.Call;
 import zipkin2.Span;
 import zipkin2.codec.SpanBytesEncoder;
+import zipkin2.elasticsearch.internal.CustomerSpanTagParser;
 import zipkin2.elasticsearch.internal.HttpBulkIndexer;
 import zipkin2.elasticsearch.internal.IndexNameFormatter;
+import zipkin2.elasticsearch.internal.SpanTagParser;
 import zipkin2.elasticsearch.internal.client.HttpCall;
 import zipkin2.storage.SpanConsumer;
 
@@ -39,6 +42,7 @@ class ElasticsearchSpanConsumer implements SpanConsumer { // not final for testi
   final ElasticsearchStorage es;
   final IndexNameFormatter indexNameFormatter;
   final boolean searchEnabled;
+
 
   ElasticsearchSpanConsumer(ElasticsearchStorage es) {
     this.es = es;
@@ -68,6 +72,15 @@ class ElasticsearchSpanConsumer implements SpanConsumer { // not final for testi
         }
         if (indexTimestamp == 0L) indexTimestamp = System.currentTimeMillis();
       }
+
+      try {
+        SpanTagParser spanTagParser = new CustomerSpanTagParser();
+        spanTagParser.parse(span.tags());
+      }
+      catch (Exception | Error e){
+        LOG.log(Level.WARNING, "Error parse for span: " + span, e);
+      }
+
       indexer.add(indexTimestamp, span, spanTimestamp);
     }
   }
