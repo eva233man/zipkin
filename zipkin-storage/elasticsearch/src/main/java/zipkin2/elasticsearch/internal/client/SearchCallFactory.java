@@ -1,5 +1,5 @@
 /**
- * Copyright 2015-2017 The OpenZipkin Authors
+ * Copyright 2015-2018 The OpenZipkin Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -34,22 +34,32 @@ public class SearchCallFactory {
   }
 
   public <V> HttpCall<V> newCall(SearchRequest request, HttpCall.BodyConverter<V> bodyConverter) {
-    Request httpRequest = new Request.Builder().url(lenientSearch(request.indices, request.type))
+    return newCall(request, bodyConverter, null);
+  }
+
+    public <V> HttpCall<V> newCall(SearchRequest request, HttpCall.BodyConverter<V> bodyConverter, String query) {
+    Request httpRequest = new Request.Builder().url(lenientSearch(request.indices, request.type, query))
         .post(RequestBody.create(APPLICATION_JSON, searchRequest.toJson(request)))
         .header("Accept-Encoding", "gzip")
         .tag(request.tag()).build();
     return http.newCall(httpRequest, bodyConverter);
   }
 
-  /** Matches the behavior of {@code IndicesOptions#lenientExpandOpen()} */
-  HttpUrl lenientSearch(List<String> indices, @Nullable String type) {
+  /**
+   * Matches the behavior of {@code IndicesOptions#lenientExpandOpen()}
+   */
+  HttpUrl lenientSearch(List<String> indices, @Nullable String type, String queryValue) {
     HttpUrl.Builder builder = http.baseUrl.newBuilder().addPathSegment(join(indices));
     if (type != null) builder.addPathSegment(type);
-    return builder.addPathSegment("_search")
-                  // keep these in alphabetical order as it simplifies amazon signatures!
-                  .addQueryParameter("allow_no_indices", "true")
-                  .addQueryParameter("expand_wildcards", "open")
-                  .addQueryParameter("ignore_unavailable", "true").build();
+    builder.addPathSegment("_search");
+    if (queryValue != null && !queryValue.isEmpty() && !queryValue.equals("")) {
+      builder.addQueryParameter("q", queryValue);
+    }
+    // keep these in alphabetical order as it simplifies amazon signatures!
+    builder.addQueryParameter("allow_no_indices", "true")
+      .addQueryParameter("expand_wildcards", "open")
+      .addQueryParameter("ignore_unavailable", "true");
+    return builder.build();
   }
 
   static String join(List<String> parts) {

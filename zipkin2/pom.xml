@@ -84,6 +84,10 @@
       <artifactId>kryo</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>io.zipkin.zipkin2</groupId>
+      <artifactId>zipkin</artifactId>
+    </dependency>
   </dependencies>
 
   <build>

@@ -75,9 +75,11 @@ final class ElasticsearchSpanStore implements SpanStore {
       filters.addTerm("name", request.spanName());
     }
 
+    String allFuzzySearch = null;
     for (Map.Entry<String, String> kv : request.annotationQuery().entrySet()) {
       if (kv.getValue().isEmpty()) {
-        filters.addTerm("_q", kv.getKey());
+//        filters.addTerm("_q", kv.getKey());
+        allFuzzySearch = kv.getKey();
       } else {
         filters.addTerm("_q", kv.getKey() + "=" + kv.getValue());
       }
@@ -104,7 +106,7 @@ final class ElasticsearchSpanStore implements SpanStore {
     SearchRequest esRequest = SearchRequest.create(indices)
       .filters(filters).addAggregation(traceIdTimestamp);
 
-    HttpCall<List<String>> traceIdsCall = search.newCall(esRequest, BodyConverters.KEYS);
+    HttpCall<List<String>> traceIdsCall = search.newCall(esRequest, BodyConverters.KEYS, allFuzzySearch);
 
     // When we receive span results, we need to group them by trace ID
     BodyConverter<List<List<Span>>> converter = new BodyConverter<List<List<Span>>>() {
